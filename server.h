@@ -10,9 +10,13 @@ using namespace DFHack;
 
 namespace yadc {
     class Server {
-        Server* instance;
+    protected:
+        int16_t comm_port;
+        int16_t screen_port;
     public:
-        static command_result start();
-        static command_result stop();
+        Server (int16_t comm_port, int16_t screen_port);
+        ~Server();
+        command_result start();
+        command_result stop();
     };
 }

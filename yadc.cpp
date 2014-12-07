@@ -14,15 +14,36 @@ using namespace yadc;
 DFHACK_PLUGIN("yadc");
 DFHACK_PLUGIN_IS_ENABLED(is_enabled);
 
+static Server* server;
 command_result cmd_yadc(color_ostream &out, std::vector <std::string> & parameters);
+
+command_result server_start()
+{
+    if (server)
+        return CR_FAILURE;
+    server = new Server(25143, 25144);
+    return server->start();
+}
+
+command_result server_stop()
+{
+    if (!server)
+        return CR_FAILURE;
+    server->stop();
+    delete server;
+    server = NULL;
+    return CR_OK;
+}
 
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands)
 {
     commands.push_back(PluginCommand(
         "yadc", "yadc",
         cmd_yadc, false,
+        "  yadc [status]: Display server status\n"
         "  yadc start: Start the server\n"
         "  yadc stop: Stop the server\n"
+        "  yadc restart: Restart the server\n"
     ));
     return CR_OK;
 }
@@ -44,9 +65,9 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
     {
         command_result res;
         if (is_enabled)
-            res = Server::stop();
+            res = server_stop();
         else
-            res = Server::start();
+            res = server_start();
         if (res != CR_OK)
             out.printerr("Could not %s server.\n", (enable) ? "enable" : "disable");
         else
@@ -58,6 +79,13 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
             "Server is already %s\n", (is_enabled) ? "enabled" : "disabled");
         return CR_FAILURE;
     }
+}
+
+command_result cmd_yadc_status(color_ostream &out)
+{
+    util::print_color(out, (is_enabled) ? COLOR_GREEN : COLOR_RED,
+        "Server %s\n", (is_enabled) ? "enabled" : "disabled");
+    return CR_OK;
 }
 
 command_result cmd_yadc(color_ostream &out, std::vector <std::string> &parameters)
@@ -73,6 +101,19 @@ command_result cmd_yadc(color_ostream &out, std::vector <std::string> &parameter
         {
             return plugin_enable(out, false);
         }
+        else if (parameters[0] == "restart")
+        {
+            command_result res = plugin_enable(out, false);
+            if (res == CR_OK)
+            {
+                res = plugin_enable(out, true);
+            }
+            return res;
+        }
+        else if (parameters[0] == "status")
+            return cmd_yadc_status(out);
     }
+    else if (parameters.size() == 0)
+        return cmd_yadc_status(out);
     return CR_WRONG_USAGE;
 }
