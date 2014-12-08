@@ -20,3 +20,17 @@ void util::vprint_color (color_ostream &out, color_value color,
     out.vprint(format, args);
     out.color(save);
 }
+
+void util::log_error (const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    util::vlog_error(format, args);
+    va_end(args);
+}
+
+void util::vlog_error (const char* format, va_list args)
+{
+    vfprintf(stderr, format, args);
+    fflush(stderr);
+}

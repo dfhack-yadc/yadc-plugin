@@ -22,7 +22,13 @@ command_result server_start()
     if (server)
         return CR_FAILURE;
     server = new Server(25143, 25144);
-    return server->start();
+    command_result res = server->start();
+    if (res != CR_OK)
+    {
+        delete server;
+        server = NULL;
+    }
+    return res;
 }
 
 command_result server_stop()
@@ -50,6 +56,8 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
 
 DFhackCExport command_result plugin_shutdown (color_ostream &out)
 {
+    if (server)
+        return server_stop();
     return CR_OK;
 }
 
@@ -69,7 +77,7 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
         else
             res = server_start();
         if (res != CR_OK)
-            out.printerr("Could not %s server.\n", (enable) ? "enable" : "disable");
+            out.printerr("Could not %s server.\n", (enable) ? "start" : "stop");
         else
             is_enabled = enable;
         return res;
