@@ -3,6 +3,19 @@
 using namespace DFHack;
 using namespace yadc;
 
+bool util::init_log_file()
+{
+    if (log_file)
+        return true;
+    log_file = fopen("yadc.log", "w");
+    if (log_file == NULL)
+    {
+        log_file = stderr;
+        return false;
+    }
+    return true;
+}
+
 void util::print_color (color_ostream &out, color_value color,
                         const char * format, ...)
 {
@@ -21,16 +34,17 @@ void util::vprint_color (color_ostream &out, color_value color,
     out.color(save);
 }
 
-void util::log_error (const char* format, ...)
+void util::log (const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    util::vlog_error(format, args);
+    util::vlog(format, args);
     va_end(args);
 }
 
-void util::vlog_error (const char* format, va_list args)
+void util::vlog (const char* format, va_list args)
 {
-    vfprintf(stderr, format, args);
-    fflush(stderr);
+    init_log_file();
+    vfprintf(log_file, format, args);
+    fflush(log_file);
 }

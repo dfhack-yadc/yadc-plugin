@@ -15,7 +15,11 @@ Server::Server(int16_t comm_port, int16_t screen_port)
      screen_port(screen_port)
 { }
 
-Server::~Server() { }
+Server::~Server()
+{
+    if (connected)
+        stop();
+}
 
 command_result Server::start()
 {
@@ -24,18 +28,24 @@ command_result Server::start()
     comm_socket = new CActiveSocket;
     comm_socket->Initialize();
     comm_socket->SetNonblocking();
+    if (!comm_socket->Open((uint8_t*)"127.0.0.1", comm_port))
+    {
+        util::log("Failed to connect to 127.0.0.1:%i \n", comm_port);
+        delete comm_socket;
+        return CR_FAILURE;
+    }
+
     screen_socket = new CActiveSocket;
     screen_socket->Initialize();
     screen_socket->SetNonblocking();
-    if (!comm_socket->Open((uint8_t*)"127.0.0.1", comm_port) ||
-        !screen_socket->Open((uint8_t*)"127.0.0.1", screen_port))
+    if (!screen_socket->Open((uint8_t*)"127.0.0.1", screen_port))
     {
-        util::log_error("Failed to connect to 127.0.0.1:%i or 127.0.0.1:%i\n",
-                comm_port, screen_port);
+        util::log("Failed to connect to 127.0.0.1:%i\n", screen_port);
         delete comm_socket;
         delete screen_socket;
         return CR_FAILURE;
     }
+
     connected = true;
     return CR_OK;
 }
