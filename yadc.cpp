@@ -4,6 +4,7 @@
 #include "PluginManager.h"
 #include "DataDefs.h"
 
+#include "renderer.h"
 #include "server.h"
 #include "util.h"
 
@@ -13,6 +14,8 @@ using namespace yadc;
 
 DFHACK_PLUGIN("yadc");
 DFHACK_PLUGIN_IS_ENABLED(is_enabled);
+
+using df::global::enabler;
 
 static Server* server;
 command_result cmd_yadc(color_ostream &out, std::vector <std::string> & parameters);
@@ -43,6 +46,11 @@ command_result server_stop()
 
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands)
 {
+    if (!enabler->renderer->uses_opengl())
+    {
+        out.printerr("yadc: OpenGL-enabled PRINT_MODE required\n");
+        return CR_FAILURE;
+    }
     commands.push_back(PluginCommand(
         "yadc", "yadc",
         cmd_yadc, false,
@@ -77,9 +85,20 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
         else
             res = server_start();
         if (res != CR_OK)
+        {
             out.printerr("Could not %s server.\n", (enable) ? "start" : "stop");
+            return res;
+        }
+        if (enable)
+        {
+            renderer::add_renderer(new renderer::YADCRenderer(enabler->renderer));
+        }
         else
-            is_enabled = enable;
+        {
+            renderer::remove_renderer();
+        }
+        is_enabled = enable;
+        util::log("Plugin %s.\n", (is_enabled) ? "enabled" : "disabled");
         return res;
     }
     else {

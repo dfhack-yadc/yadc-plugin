@@ -54,10 +54,18 @@ command_result Server::stop()
 {
     if (connected)
     {
-        comm_socket->Close();
-        delete comm_socket;
-        screen_socket->Close();
-        delete screen_socket;
+        if (comm_socket)
+        {
+            comm_socket->Close();
+            delete comm_socket;
+            comm_socket = NULL;
+        }
+        if (screen_socket)
+        {
+            screen_socket->Close();
+            delete screen_socket;
+            screen_socket = NULL;
+        }
     }
     return CR_OK;
 }

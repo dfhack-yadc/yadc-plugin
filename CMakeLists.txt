@@ -2,11 +2,13 @@ PROJECT (yadc)
 # A list of source files
 SET(PROJECT_SRCS
     yadc.cpp
+    renderer.cpp
     server.cpp
     util.cpp
 )
 # A list of headers
 SET(PROJECT_HDRS
+    renderer.h
     server.h
     util.h
 )

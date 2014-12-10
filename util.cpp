@@ -3,6 +3,8 @@
 using namespace DFHack;
 using namespace yadc;
 
+FILE* util::log_file = NULL;
+
 bool util::init_log_file()
 {
     if (log_file)
