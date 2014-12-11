@@ -79,6 +79,7 @@ void YADCRenderer::update_all()
     lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->update_all();
+    copy_from_inner();
     fill_dirty();
 }
 
@@ -87,6 +88,7 @@ void YADCRenderer::render()
     lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->render();
+    copy_from_inner();
 }
 
 void YADCRenderer::set_fullscreen()
