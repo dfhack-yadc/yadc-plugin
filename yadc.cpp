@@ -64,6 +64,11 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
         "  yadc stop: Stop the server\n"
         "  yadc restart: Restart the server\n"
     ));
+    if (getenv("YADC_AUTO_ENABLE"))
+    {
+        util::print_color(out, COLOR_LIGHTGREEN, "Auto-enabling yadc\n");
+        return plugin_enable(out, true);
+    }
     return CR_OK;
 }
 
