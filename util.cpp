@@ -50,3 +50,14 @@ void util::vlog (const char* format, va_list args)
     vfprintf(log_file, format, args);
     fflush(log_file);
 }
+
+std::string util::int32_to_str (int32_t n)
+{
+    std::string s;
+    unsigned char* ptr = (unsigned char*)&n;
+    for (int i = 0; i < 4; ++i, ++ptr)
+    {
+        s.push_back(*ptr);
+    }
+    return s;
+}

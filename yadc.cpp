@@ -91,7 +91,7 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
         int32_t len = r->serialize_changed(test_buffer, 256 * 256 * 5);
         if (len)
         {
-            server->sendScreenData(test_buffer, len);
+            server->send_screen_data(test_buffer, len);
         }
     }
     return CR_OK;

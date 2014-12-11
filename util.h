@@ -21,5 +21,7 @@ namespace yadc {
                            const char* format, va_list args);
         void log (const char *format, ...);
         void vlog (const char *format, va_list args);
+
+        std::string int32_to_str (int32_t n);
     }
 }
