@@ -24,5 +24,6 @@ namespace yadc {
         ~Server();
         command_result start();
         command_result stop();
+        bool sendScreenData (const unsigned char* buffer, int length);
     };
 }

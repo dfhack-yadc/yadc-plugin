@@ -69,3 +69,11 @@ command_result Server::stop()
     }
     return CR_OK;
 }
+
+bool Server::sendScreenData (const unsigned char* buffer, int length)
+{
+    if (!screen_socket)
+        return false;
+    int result = screen_socket->Send((const uint8_t*)buffer, length);
+    return (result != -1);
+}

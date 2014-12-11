@@ -16,8 +16,13 @@ DFHACK_PLUGIN("yadc");
 DFHACK_PLUGIN_IS_ENABLED(is_enabled);
 
 using df::global::enabler;
+using df::global::gps;
 
 static Server* server;
+DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands);
+DFhackCExport command_result plugin_shutdown (color_ostream &out);
+DFhackCExport command_result plugin_onupdate (color_ostream &out);
+DFhackCExport command_result plugin_enable (color_ostream &out, bool enable);
 command_result cmd_yadc(color_ostream &out, std::vector <std::string> & parameters);
 
 command_result server_start()
@@ -66,12 +71,29 @@ DFhackCExport command_result plugin_shutdown (color_ostream &out)
 {
     if (server)
         return server_stop();
+    if (is_enabled)
+    {
+        // Clean up
+        plugin_enable(out, false);
+    }
     return CR_OK;
 }
 
-
+unsigned char test_buffer[256 * 256 * 5];
 DFhackCExport command_result plugin_onupdate (color_ostream &out)
 {
+    static int32_t last_gpu_tick = 0;
+    if (is_enabled && enabler->gputicks.value != last_gpu_tick)
+    {
+        last_gpu_tick = enabler->gputicks.value;
+        CoreSuspender suspend;
+        auto r = static_cast<renderer::YADCRenderer*>(enabler->renderer);
+        int32_t len = r->serialize_changed(test_buffer, 256 * 256 * 5);
+        if (len)
+        {
+            server->sendScreenData(test_buffer, len);
+        }
+    }
     return CR_OK;
 }
 

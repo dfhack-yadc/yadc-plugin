@@ -5,6 +5,7 @@ using df::global::enabler;
 using df::global::gps;
 
 using namespace DFHack;
+using namespace tthread;
 using namespace yadc;
 using namespace yadc::renderer;
 
@@ -23,7 +24,9 @@ void renderer::remove_renderer()
 YADCRenderer::YADCRenderer (df::renderer* parent)
     :parent(parent)
 {
+    lock = new recursive_mutex();
     copy_from_inner();
+    fill_dirty();
 }
 
 YADCRenderer::~YADCRenderer()
@@ -63,55 +66,63 @@ void YADCRenderer::copy_to_inner()
     parent->screentexpos_cbr_old = screentexpos_cbr_old;
 }
 
-void YADCRenderer::invalidate_all()
-{
-    memset(dirty, 1, DIRTY_LEN);
-}
-
 void YADCRenderer::update_tile (int32_t x, int32_t y)
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->update_tile(x, y);
+    dirty[tile_index(x, y)] = 1;
 }
 
 void YADCRenderer::update_all()
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->update_all();
+    fill_dirty();
 }
 
 void YADCRenderer::render()
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->render();
 }
 
 void YADCRenderer::set_fullscreen()
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->set_fullscreen();
     copy_from_inner();
+    fill_dirty();
 }
 
 void YADCRenderer::zoom (df::zoom_commands z)
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->zoom(z);
     copy_from_inner();
+    fill_dirty();
 }
 
 void YADCRenderer::resize (int32_t w, int32_t h)
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->resize(w, h);
     copy_from_inner();
+    fill_dirty();
 }
 
 void YADCRenderer::grid_resize (int32_t w, int32_t h)
 {
+    lock_guard <recursive_mutex> g(*lock);
     copy_to_inner();
     parent->grid_resize(w, h);
     copy_from_inner();
+    fill_dirty();
 };
 
 bool YADCRenderer::get_mouse_coords (int32_t* x, int32_t* y)
@@ -122,5 +133,33 @@ bool YADCRenderer::get_mouse_coords (int32_t* x, int32_t* y)
 bool YADCRenderer::uses_opengl()
 {
     return parent->uses_opengl();
+}
+
+int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
+{
+    // Serialize all changed tiles
+    // Each tile is represented by 5 bytes: x, y, tile, fg, bg
+    lock_guard <recursive_mutex> g(*lock);
+    unsigned char* p = dest;
+    for (int y = 0; y < gps->dimy; y++)
+    {
+        for (int x = 0; x < gps->dimx; x++)
+        {
+            const int tile = tile_index(x, y);
+            if (!dirty[tile])
+                continue;
+            if ((int)(p + 5) - (int)dest > maxlength)
+                break;
+            unsigned char* screen_tile = screen + (tile * 4);
+            *(p++) = x;
+            *(p++) = y;
+            *(p++) = screen_tile[0];
+            *(p++) = (screen_tile[1] + (8 * screen_tile[3])) % 16;
+            *(p++) = screen_tile[2] % 8;
+        }
+    }
+    int32_t len = (int)(p - dest);
+    clear_dirty();
+    return len;
 }
 
