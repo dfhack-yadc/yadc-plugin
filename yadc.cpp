@@ -66,8 +66,11 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
     ));
     if (getenv("YADC_AUTO_ENABLE"))
     {
-        util::print_color(out, COLOR_LIGHTGREEN, "Auto-enabling yadc\n");
-        return plugin_enable(out, true);
+        command_result res = plugin_enable(out, true);
+        if (res == CR_OK)
+            util::print_color(out, COLOR_LIGHTGREEN, "Auto-enabled yadc\n");
+        else
+            util::print_color(out, COLOR_LIGHTMAGENTA, "Could not auto-enable yadc\n");
     }
     return CR_OK;
 }
@@ -92,7 +95,7 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
     {
         last_gpu_tick = enabler->gputicks.value;
         CoreSuspender suspend;
-        auto r = static_cast<renderer::YADCRenderer*>(enabler->renderer);
+        renderer::YADCRenderer* r = static_cast<renderer::YADCRenderer*>(enabler->renderer);
         int32_t len = r->serialize_changed(test_buffer, 256 * 256 * 5);
         if (len)
         {

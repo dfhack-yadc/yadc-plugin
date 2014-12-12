@@ -27,11 +27,14 @@ YADCRenderer::YADCRenderer (df::renderer* parent)
     lock = new recursive_mutex();
     copy_from_inner();
     fill_dirty();
+    reset_old_buffer();
 }
 
 YADCRenderer::~YADCRenderer()
 {
     enabler->renderer = parent;
+    delete[] dirty;
+    delete[] old_buffer;
 }
 
 void YADCRenderer::copy_from_inner()
@@ -147,17 +150,29 @@ int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
     {
         for (int x = 0; x < gps->dimx; x++)
         {
+            if ((int)(p + 5) - (int)dest > maxlength)
+                break;
             const int tile = tile_index(x, y);
             if (!dirty[tile])
                 continue;
-            if ((int)(p + 5) - (int)dest > maxlength)
-                break;
+            unsigned char* old_buffer_tile = old_buffer + (tile * 3);
             unsigned char* screen_tile = screen + (tile * 4);
+            unsigned char ch = screen_tile[0];
+            unsigned char fg = (screen_tile[1] + (8 * screen_tile[3])) % 16;
+            unsigned char bg = screen_tile[2] % 8;
+            // Avoid sending tiles that haven't actually changed, even if they
+            // were updated (for example, after resizing the screen)
+            if (old_buffer_tile[0] == ch && old_buffer_tile[1] == fg &&
+                old_buffer_tile[2] == bg)
+                continue;
             *(p++) = x;
             *(p++) = y;
-            *(p++) = screen_tile[0];
-            *(p++) = (screen_tile[1] + (8 * screen_tile[3])) % 16;
-            *(p++) = screen_tile[2] % 8;
+            *(p++) = ch;
+            *(p++) = fg;
+            *(p++) = bg;
+            old_buffer_tile[0] = ch;
+            old_buffer_tile[1] = fg;
+            old_buffer_tile[2] = bg;
         }
     }
     int32_t len = (int)(p - dest);

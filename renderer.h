@@ -30,6 +30,7 @@ namespace yadc {
         class YADCRenderer : public df::renderer {
         public:
             static const int DIRTY_LEN = 256 * 256;
+            static const int OLD_BUFFER_LEN = 256 * 256 * 3;
 
             YADCRenderer (df::renderer* parent);
             ~YADCRenderer();
@@ -49,10 +50,12 @@ namespace yadc {
         private:
             tthread::recursive_mutex * lock;
             unsigned char dirty[DIRTY_LEN];
+            unsigned char old_buffer[OLD_BUFFER_LEN];
             void copy_from_inner();
             void copy_to_inner();
             inline void fill_dirty()  { memset(dirty, 1, DIRTY_LEN); };
             inline void clear_dirty() { memset(dirty, 0, DIRTY_LEN); };
+            inline void reset_old_buffer() { memset(old_buffer, 255, OLD_BUFFER_LEN); };
         };
 
         void add_renderer (df::renderer *r);
