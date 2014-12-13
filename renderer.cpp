@@ -155,7 +155,9 @@ int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
             const int tile = tile_index(x, y);
             if (!dirty[tile])
                 continue;
-            unsigned char* old_buffer_tile = old_buffer + (tile * 3);
+            // old_buffer is a constant size, which ensures that tiles are
+            // properly updated when the screen dimensions change
+            unsigned char* old_buffer_tile = old_buffer + ((x * 256 + y) * 3);
             unsigned char* screen_tile = screen + (tile * 4);
             unsigned char ch = screen_tile[0];
             unsigned char fg = (screen_tile[1] + (8 * screen_tile[3])) % 16;
