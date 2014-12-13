@@ -161,7 +161,7 @@ int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
             unsigned char* screen_tile = screen + (tile * 4);
             unsigned char ch = screen_tile[0];
             unsigned char fg = (screen_tile[1] + (8 * screen_tile[3])) % 16;
-            unsigned char bg = screen_tile[2] % 8;
+            unsigned char bg = screen_tile[2] % 16;
             // Avoid sending tiles that haven't actually changed, even if they
             // were updated (for example, after resizing the screen)
             if (old_buffer_tile[0] == ch && old_buffer_tile[1] == fg &&
