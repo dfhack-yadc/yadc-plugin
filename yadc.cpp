@@ -7,6 +7,7 @@
 #include "renderer.h"
 #include "server.h"
 #include "util.h"
+#include "jsonxx.h"
 
 using namespace DFHack;
 using namespace df::enums;
@@ -91,15 +92,22 @@ unsigned char test_buffer[256 * 256 * 5];
 DFhackCExport command_result plugin_onupdate (color_ostream &out)
 {
     static int32_t last_gpu_tick = 0;
+    int32_t len;
     if (is_enabled && enabler->gputicks.value != last_gpu_tick)
     {
         last_gpu_tick = enabler->gputicks.value;
         CoreSuspender suspend;
         renderer::YADCRenderer* r = static_cast<renderer::YADCRenderer*>(enabler->renderer);
-        int32_t len = r->serialize_changed(test_buffer, 256 * 256 * 5);
+        len = r->serialize_changed(test_buffer, 256 * 256 * 5);
         if (len)
         {
             server->send_screen_data(test_buffer, len);
+        }
+        len = r->serialize_events(test_buffer, 256 * 256 * 5);
+        if (len)
+        {
+            out.printerr("len=%i\n", len);
+            server->send_comm_data(test_buffer, len);
         }
     }
     return CR_OK;

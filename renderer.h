@@ -18,6 +18,10 @@ using df::global::gps;
 
 namespace yadc {
     namespace renderer {
+        enum renderer_event {
+            GRID_RESIZE = 1
+        };
+
         struct old_opengl : public df::renderer
         {
             void* sdlSurface;
@@ -45,9 +49,11 @@ namespace yadc {
             virtual bool uses_opengl();
 
             int32_t serialize_changed (unsigned char* dest, int maxlength);
+            int32_t serialize_events (unsigned char* dest, int maxlength);
         protected:
             df::renderer* parent;
         private:
+            int event_flags;
             tthread::recursive_mutex * lock;
             unsigned char dirty[DIRTY_LEN];
             unsigned char old_buffer[OLD_BUFFER_LEN];

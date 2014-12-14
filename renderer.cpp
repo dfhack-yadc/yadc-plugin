@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include "util.h"
+#include "jsonxx.h"
 
 using df::global::enabler;
 using df::global::gps;
@@ -22,7 +23,8 @@ void renderer::remove_renderer()
 }
 
 YADCRenderer::YADCRenderer (df::renderer* parent)
-    :parent(parent)
+    :parent(parent),
+     event_flags(0)
 {
     lock = new recursive_mutex();
     copy_from_inner();
@@ -110,6 +112,7 @@ void YADCRenderer::zoom (df::zoom_commands z)
     parent->zoom(z);
     copy_from_inner();
     fill_dirty();
+    event_flags |= renderer_event::GRID_RESIZE;
 }
 
 void YADCRenderer::resize (int32_t w, int32_t h)
@@ -119,6 +122,7 @@ void YADCRenderer::resize (int32_t w, int32_t h)
     parent->resize(w, h);
     copy_from_inner();
     fill_dirty();
+    event_flags |= renderer_event::GRID_RESIZE;
 }
 
 void YADCRenderer::grid_resize (int32_t w, int32_t h)
@@ -128,6 +132,7 @@ void YADCRenderer::grid_resize (int32_t w, int32_t h)
     parent->grid_resize(w, h);
     copy_from_inner();
     fill_dirty();
+    event_flags |= renderer_event::GRID_RESIZE;
 };
 
 bool YADCRenderer::get_mouse_coords (int32_t* x, int32_t* y)
@@ -182,3 +187,20 @@ int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
     return len;
 }
 
+int32_t YADCRenderer::serialize_events (unsigned char* dest, int maxlength)
+{
+    jsonxx::Object events;
+    if (event_flags & renderer_event::GRID_RESIZE)
+    {
+        jsonxx::Object dims;
+        dims << "x" << gps->dimx;
+        dims << "y" << gps->dimy;
+        events << "grid" << dims;
+    }
+    if (events.empty())
+        return 0;
+    std::string json = events.json();
+    strncpy((char*)dest, json.c_str(), maxlength);
+    event_flags = 0;
+    return json.size();
+}

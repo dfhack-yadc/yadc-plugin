@@ -70,13 +70,23 @@ command_result Server::stop()
     return CR_OK;
 }
 
-bool Server::send_screen_data (const unsigned char* buffer, int32_t length)
+bool Server::send_data (CActiveSocket* sock, const unsigned char* buffer, int32_t length)
 {
-    if (!screen_socket)
+    if (!sock)
         return false;
     std::string str_length = util::int32_to_str(length);
-    if (screen_socket->Send((uint8_t*)str_length.c_str(), 4) == -1)
+    if (sock->Send((uint8_t*)str_length.c_str(), 4) == -1)
         return false;
-    int result = screen_socket->Send((const uint8_t*)buffer, length);
+    int result = sock->Send((const uint8_t*)buffer, length);
     return (result != -1);
+}
+
+bool Server::send_screen_data (const unsigned char* buffer, int32_t length)
+{
+    return send_data(screen_socket, buffer, length);
+}
+
+bool Server::send_comm_data (const unsigned char* buffer, int32_t length)
+{
+    return send_data(comm_socket, buffer, length);
 }
