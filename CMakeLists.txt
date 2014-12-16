@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(depends/jsonxx)
 SET(PROJECT_SRCS
     depends/jsonxx/jsonxx.cc
     yadc.cpp
+    config.cpp
     renderer.cpp
     server.cpp
     util.cpp
@@ -11,6 +12,7 @@ SET(PROJECT_SRCS
 # A list of headers
 SET(PROJECT_HDRS
     depends/jsonxx/jsonxx.h
+    config.h
     renderer.h
     server.h
     util.h

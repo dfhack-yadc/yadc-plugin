@@ -4,6 +4,7 @@
 #include "PluginManager.h"
 #include "DataDefs.h"
 
+#include "config.h"
 #include "renderer.h"
 #include "server.h"
 #include "util.h"
@@ -20,6 +21,8 @@ using df::global::enabler;
 using df::global::gps;
 
 static Server* server;
+static config::YADCConfig yadc_config;
+
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands);
 DFhackCExport command_result plugin_shutdown (color_ostream &out);
 DFhackCExport command_result plugin_onupdate (color_ostream &out);
@@ -30,7 +33,7 @@ command_result server_start()
 {
     if (server)
         return CR_FAILURE;
-    server = new Server(25143, 25144);
+    server = new Server(yadc_config.comm_port, yadc_config.screen_port);
     command_result res = server->start();
     if (res != CR_OK)
     {
@@ -57,6 +60,20 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
         out.printerr("yadc: OpenGL-enabled PRINT_MODE required\n");
         return CR_FAILURE;
     }
+    if (!config::init_config())
+    {
+        out.printerr("yadc: Could not initialize configuration file\n");
+        return CR_FAILURE;
+    }
+    config::ConfigParser parser(YADC_CONFIG_PATH);
+    if (!parser.isValid())
+    {
+        out.printerr("yadc: Could not load configuration file\n");
+        return CR_FAILURE;
+    }
+    jsonxx::Object config = parser.getData();
+    yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25143);
+    yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25144);
     commands.push_back(PluginCommand(
         "yadc", "yadc",
         cmd_yadc, false,
