@@ -4,11 +4,13 @@
 #include "PluginManager.h"
 #include "DataDefs.h"
 
+#include "jsonxx.h"
+
+#include "input.h"
 #include "config.h"
 #include "renderer.h"
 #include "server.h"
 #include "util.h"
-#include "jsonxx.h"
 
 using namespace DFHack;
 using namespace df::enums;
@@ -58,6 +60,11 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
     if (!enabler->renderer->uses_opengl())
     {
         out.printerr("yadc: OpenGL-enabled PRINT_MODE required\n");
+        return CR_FAILURE;
+    }
+    if (!input::initialize())
+    {
+        out.printerr("Failed to initialize input hooks\n");
         return CR_FAILURE;
     }
     if (!config::init_config())
