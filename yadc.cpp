@@ -123,7 +123,6 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
         len = r->serialize_events(test_buffer, 256 * 256 * 5);
         if (len)
         {
-            out.printerr("len=%i\n", len);
             server->send_comm_data(test_buffer, len);
         }
     }
