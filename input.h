@@ -29,7 +29,8 @@ namespace yadc {
                 unicode(unicode),
                 modstate(modstate)
             { }
-            bool read_from_json (std::string input);
+            bool read_from_json (const jsonxx::Object object);
+            bool read_from_json (const std::string input);
             bool trigger();
             SDL::EventType type;
             SDL::Key sym;
