@@ -191,11 +191,11 @@ command_result cmd_yadc(color_ostream &out, std::vector <std::string> &parameter
         }
         else if (parameters[0] == "restart")
         {
-            command_result res = plugin_enable(out, false);
+            command_result res = CR_OK;
+            if (is_enabled)
+                res = plugin_enable(out, false);
             if (res == CR_OK)
-            {
                 res = plugin_enable(out, true);
-            }
             return res;
         }
         else if (parameters[0] == "status")
