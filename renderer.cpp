@@ -24,7 +24,7 @@ void renderer::remove_renderer()
 
 YADCRenderer::YADCRenderer (df::renderer* parent)
     :parent(parent),
-     event_flags(0)
+     event_flags(renderer_event::GRID_RESIZE)
 {
     lock = new recursive_mutex();
     copy_from_inner();
