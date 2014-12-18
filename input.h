@@ -11,12 +11,6 @@
 #include "SDL_events.h"
 #include "SDL_keysym.h"
 
-#ifdef _LINUX
-extern "C" {
-    extern int SDL_PushEvent(SDL::Event* event);
-}
-#endif
-
 namespace yadc {
     namespace input {
         bool initialize();

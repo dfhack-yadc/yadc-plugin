@@ -1,12 +1,18 @@
 #include "input.h"
 #include "util.h"
 
-using namespace yadc;
-using namespace yadc::input;
-
 #ifdef _DARWIN
 #include <dlfcn.h>
 #endif
+
+#ifdef _LINUX
+extern "C" {
+    extern int SDL_PushEvent(SDL::Event* event);
+}
+#endif
+
+using namespace yadc;
+using namespace yadc::input;
 
 bool input::initialize()
 {
