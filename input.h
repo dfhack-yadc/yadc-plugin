@@ -13,8 +13,11 @@
 
 namespace yadc {
     namespace input {
+        static std::map<int, SDL::Key> sdl_key_map;
+
         bool initialize();
         static int (*push_event)(SDL::Event* event) = 0;
+        SDL::Key map_key (int keycode);
         struct KeyboardEvent {
             KeyboardEvent():
                 type(SDL::ET_NOEVENT),
