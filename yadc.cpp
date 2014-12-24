@@ -57,11 +57,6 @@ command_result server_stop()
 
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands)
 {
-    if (!enabler->renderer->uses_opengl())
-    {
-        out.printerr("yadc: OpenGL-enabled PRINT_MODE required\n");
-        return CR_FAILURE;
-    }
     if (!input::initialize())
     {
         out.printerr("Failed to initialize input hooks\n");

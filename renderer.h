@@ -22,15 +22,6 @@ namespace yadc {
             GRID_RESIZE = 1
         };
 
-        struct old_opengl : public df::renderer
-        {
-            void* sdlSurface;
-            int32_t dispx, dispy;
-            float *vertexes, *fg, *bg, *tex;
-            int32_t zoom_steps, forced_steps, natural_w, natural_h;
-            int32_t off_x, off_y, size_x, size_y;
-        };
-
         class YADCRenderer : public df::renderer {
         public:
             static const int DIRTY_LEN = 256 * 256;
