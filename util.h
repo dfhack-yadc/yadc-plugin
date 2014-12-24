@@ -8,6 +8,7 @@
 #include "Export.h"
 #include "PluginManager.h"
 #include "DataDefs.h"
+#include "md5wrapper.h"
 
 using namespace DFHack;
 
@@ -23,5 +24,7 @@ namespace yadc {
         void vlog (const char *format, va_list args);
 
         std::string int32_to_str (int32_t n);
+
+        std::string unique_id();
     }
 }

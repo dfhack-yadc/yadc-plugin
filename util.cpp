@@ -61,3 +61,13 @@ std::string util::int32_to_str (int32_t n)
     }
     return s;
 }
+
+std::string util::unique_id()
+{
+    /* This calculates an identifier unique to a DF installation (in other words,
+     * a hash based on the DF path). This will prevent the server from recognizing
+     * multiple yadc instances in the same DF folder, which shouldn't be a problem.
+     */
+    static md5wrapper wrapper;
+    return wrapper.getHashFromString(DFHack::Core::getInstance().getHackPath()).substr(0, 8);
+}

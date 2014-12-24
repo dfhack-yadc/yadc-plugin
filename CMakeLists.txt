@@ -25,4 +25,4 @@ SET_SOURCE_FILES_PROPERTIES(${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
 LIST(APPEND PROJECT_SRCS ${PROJECT_HDRS})
 
 # this makes sure all the stuff is put in proper places and linked to dfhack
-DFHACK_PLUGIN(yadc ${PROJECT_SRCS} LINK_LIBRARIES clsocket)
+DFHACK_PLUGIN(yadc ${PROJECT_SRCS} LINK_LIBRARIES clsocket dfhack-md5)

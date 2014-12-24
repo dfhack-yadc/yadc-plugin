@@ -12,6 +12,7 @@ using namespace DFHack;
 
 namespace yadc {
     class Server {
+    private:
         bool connected;
     protected:
         int16_t comm_port;
@@ -20,6 +21,7 @@ namespace yadc {
         CActiveSocket* screen_socket;
         void log(std::string msg, bool console);
         bool send_data (CActiveSocket* sock, const unsigned char* buffer, int32_t length);
+        void cleanup();
     public:
         Server (int16_t comm_port, int16_t screen_port);
         ~Server();
