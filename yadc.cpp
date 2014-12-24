@@ -3,6 +3,7 @@
 #include "Export.h"
 #include "PluginManager.h"
 #include "DataDefs.h"
+#include "modules/Filesystem.h"
 
 #include "jsonxx.h"
 
@@ -62,6 +63,8 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
         out.printerr("Failed to initialize input hooks\n");
         return CR_FAILURE;
     }
+    DFHack::Filesystem::mkdir("yadc");
+    util::init_log_file();
     if (!config::init_config())
     {
         out.printerr("yadc: Could not initialize configuration file\n");

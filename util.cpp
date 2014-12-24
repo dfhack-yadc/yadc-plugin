@@ -9,7 +9,7 @@ bool util::init_log_file()
 {
     if (log_file)
         return true;
-    log_file = fopen("yadc.log", "w");
+    log_file = fopen("yadc/yadc.log", "w");
     if (log_file == NULL)
     {
         log_file = stderr;
