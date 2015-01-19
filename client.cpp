@@ -4,12 +4,12 @@
 #include "PluginManager.h"
 #include "DataDefs.h"
 
-#include "server.h"
+#include "client.h"
 #include "util.h"
 
 using namespace yadc;
 
-Server::Server(int16_t comm_port, int16_t screen_port)
+Client::Client(int16_t comm_port, int16_t screen_port)
     :connected(false),
      comm_port(comm_port),
      screen_port(screen_port),
@@ -17,13 +17,13 @@ Server::Server(int16_t comm_port, int16_t screen_port)
      screen_socket(NULL)
 { }
 
-Server::~Server()
+Client::~Client()
 {
     if (connected)
-        stop();
+        disconnect();
 }
 
-command_result Server::start()
+command_result Client::connect()
 {
     if (connected)
         return CR_FAILURE;
@@ -66,7 +66,7 @@ command_result Server::start()
     return CR_OK;
 }
 
-command_result Server::stop()
+command_result Client::disconnect()
 {
     if (connected)
         cleanup();
@@ -74,7 +74,7 @@ command_result Server::stop()
     return CR_OK;
 }
 
-void Server::cleanup()
+void Client::cleanup()
 {
     if (comm_socket)
     {
@@ -90,7 +90,7 @@ void Server::cleanup()
     }
 }
 
-bool Server::send_data (CActiveSocket* sock, const unsigned char* buffer, int32_t length)
+bool Client::send_data (CActiveSocket* sock, const unsigned char* buffer, int32_t length)
 {
     if (!sock)
         return false;
@@ -101,12 +101,12 @@ bool Server::send_data (CActiveSocket* sock, const unsigned char* buffer, int32_
     return (result != -1);
 }
 
-bool Server::send_screen_data (const unsigned char* buffer, int32_t length)
+bool Client::send_screen_data (const unsigned char* buffer, int32_t length)
 {
     return send_data(screen_socket, buffer, length);
 }
 
-bool Server::send_comm_data (const unsigned char* buffer, int32_t length)
+bool Client::send_comm_data (const unsigned char* buffer, int32_t length)
 {
     return send_data(comm_socket, buffer, length);
 }

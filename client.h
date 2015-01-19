@@ -11,7 +11,7 @@
 using namespace DFHack;
 
 namespace yadc {
-    class Server {
+    class Client {
     private:
         bool connected;
     protected:
@@ -23,10 +23,10 @@ namespace yadc {
         bool send_data (CActiveSocket* sock, const unsigned char* buffer, int32_t length);
         void cleanup();
     public:
-        Server (int16_t comm_port, int16_t screen_port);
-        ~Server();
-        command_result start();
-        command_result stop();
+        Client (int16_t comm_port, int16_t screen_port);
+        ~Client();
+        command_result connect();
+        command_result disconnect();
         bool send_screen_data (const unsigned char* buffer, int32_t length);
         bool send_comm_data (const unsigned char* buffer, int32_t length);
     };

@@ -8,9 +8,9 @@
 #include "jsonxx.h"
 
 #include "input.h"
+#include "client.h"
 #include "config.h"
 #include "renderer.h"
-#include "server.h"
 #include "util.h"
 
 using namespace DFHack;
@@ -23,7 +23,7 @@ DFHACK_PLUGIN_IS_ENABLED(is_enabled);
 using df::global::enabler;
 using df::global::gps;
 
-static Server* server;
+static Client* client;
 static config::YADCConfig yadc_config;
 
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands);
@@ -32,27 +32,27 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out);
 DFhackCExport command_result plugin_enable (color_ostream &out, bool enable);
 command_result cmd_yadc(color_ostream &out, std::vector <std::string> & parameters);
 
-command_result server_start()
+command_result client_connect()
 {
-    if (server)
+    if (client)
         return CR_FAILURE;
-    server = new Server(yadc_config.comm_port, yadc_config.screen_port);
-    command_result res = server->start();
+    client = new Client(yadc_config.comm_port, yadc_config.screen_port);
+    command_result res = client->connect();
     if (res != CR_OK)
     {
-        delete server;
-        server = NULL;
+        delete client;
+        client = NULL;
     }
     return res;
 }
 
-command_result server_stop()
+command_result client_disconnect()
 {
-    if (!server)
+    if (!client)
         return CR_FAILURE;
-    server->stop();
-    delete server;
-    server = NULL;
+    client->disconnect();
+    delete client;
+    client = NULL;
     return CR_OK;
 }
 
@@ -82,10 +82,10 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
     commands.push_back(PluginCommand(
         "yadc", "yadc",
         cmd_yadc, false,
-        "  yadc [status]: Display server status\n"
-        "  yadc start: Start the server\n"
-        "  yadc stop: Stop the server\n"
-        "  yadc restart: Restart the server\n"
+        "  yadc [status]: Display client status\n"
+        "  yadc connect|start: Connect to the server\n"
+        "  yadc disconnect|stop: Disconnect from the server\n"
+        "  yadc reconnect|restart: Restart the client\n"
     ));
     if (getenv("YADC_AUTO_ENABLE"))
     {
@@ -100,8 +100,8 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
 
 DFhackCExport command_result plugin_shutdown (color_ostream &out)
 {
-    if (server)
-        return server_stop();
+    if (client)
+        return client_disconnect();
     if (is_enabled)
     {
         // Clean up
@@ -123,12 +123,12 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
         len = r->serialize_changed(test_buffer, 256 * 256 * 5);
         if (len)
         {
-            server->send_screen_data(test_buffer, len);
+            client->send_screen_data(test_buffer, len);
         }
         len = r->serialize_events(test_buffer, 256 * 256 * 5);
         if (len)
         {
-            server->send_comm_data(test_buffer, len);
+            client->send_comm_data(test_buffer, len);
         }
     }
     return CR_OK;
@@ -140,12 +140,12 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
     {
         command_result res;
         if (is_enabled)
-            res = server_stop();
+            res = client_disconnect();
         else
-            res = server_start();
+            res = client_connect();
         if (res != CR_OK)
         {
-            out.printerr("Could not %s server.\n", (enable) ? "start" : "stop");
+            out.printerr("Could not %s client.\n", (enable) ? "start" : "stop");
             return res;
         }
         if (enable)
@@ -162,15 +162,14 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
     }
     else {
         util::print_color(out, (is_enabled) ? COLOR_LIGHTGREEN : COLOR_YELLOW,
-            "Server is already %s\n", (is_enabled) ? "enabled" : "disabled");
+            "Client is already %s\n", (is_enabled) ? "connected" : "disconnected");
         return CR_FAILURE;
     }
 }
 
 command_result cmd_yadc_status(color_ostream &out)
 {
-    util::print_color(out, (is_enabled) ? COLOR_GREEN : COLOR_RED,
-        "Server %s\n", (is_enabled) ? "enabled" : "disabled");
+    out.print("Client %s\n", (is_enabled) ? "connected" : "disconnected");
     return CR_OK;
 }
 
@@ -179,15 +178,15 @@ command_result cmd_yadc(color_ostream &out, std::vector <std::string> &parameter
     CoreSuspender suspend;
     if (parameters.size() >= 1)
     {
-        if (parameters[0] == "start" || parameters[0] == "enable")
+        if (parameters[0] == "start" || parameters[0] == "enable" || parameters[0] == "connect")
         {
             return plugin_enable(out, true);
         }
-        else if (parameters[0] == "stop" || parameters[0] == "disable")
+        else if (parameters[0] == "stop" || parameters[0] == "disable" || parameters[0] == "disconnect")
         {
             return plugin_enable(out, false);
         }
-        else if (parameters[0] == "restart")
+        else if (parameters[0] == "restart" || parameters[0] == "reconnect")
         {
             command_result res = CR_OK;
             if (is_enabled)

@@ -4,19 +4,19 @@ INCLUDE_DIRECTORIES(depends/jsonxx)
 SET(PROJECT_SRCS
     depends/jsonxx/jsonxx.cc
     yadc.cpp
+    client.cpp
     config.cpp
     input.cpp
     renderer.cpp
-    server.cpp
     util.cpp
 )
 # A list of headers
 SET(PROJECT_HDRS
     depends/jsonxx/jsonxx.h
+    client.h
     config.h
     input.h
     renderer.h
-    server.h
     util.h
 )
 SET_SOURCE_FILES_PROPERTIES(${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
