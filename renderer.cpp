@@ -10,17 +10,29 @@ using namespace tthread;
 using namespace yadc;
 using namespace yadc::renderer;
 
-void renderer::add_renderer (df::renderer *r)
+static YADCRenderer* y_renderer = NULL;
+
+void renderer::add_renderer (YADCRenderer* r)
 {
+    if (y_renderer)
+        return;
     CoreSuspender suspend;
-    enabler->renderer = r;
+    util::log("Adding YADCRenderer: %p\n", r);
+    enabler->renderer = (df::renderer*)r;
+    y_renderer = r;
 }
 
 void renderer::remove_renderer()
 {
+    if (!y_renderer)
+        return;
     CoreSuspender suspend;
-    delete enabler->renderer;
+    util::log("Removing YADCRenderer: %p\n", y_renderer);
+    delete y_renderer;
+    y_renderer = NULL;
 }
+
+YADCRenderer* renderer::get_renderer() { return y_renderer; }
 
 YADCRenderer::YADCRenderer (df::renderer* parent)
     :parent(parent),
@@ -28,6 +40,8 @@ YADCRenderer::YADCRenderer (df::renderer* parent)
 {
     lock = new recursive_mutex();
     copy_from_inner();
+    dirty = new unsigned char[DIRTY_LEN];
+    old_buffer = new unsigned char[OLD_BUFFER_LEN];
     fill_dirty();
     reset_old_buffer();
 }

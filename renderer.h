@@ -46,8 +46,8 @@ namespace yadc {
         private:
             int event_flags;
             tthread::recursive_mutex * lock;
-            unsigned char dirty[DIRTY_LEN];
-            unsigned char old_buffer[OLD_BUFFER_LEN];
+            unsigned char* dirty;
+            unsigned char* old_buffer;
             void copy_from_inner();
             void copy_to_inner();
             inline void fill_dirty()  { memset(dirty, 1, DIRTY_LEN); };
@@ -55,8 +55,9 @@ namespace yadc {
             inline void reset_old_buffer() { memset(old_buffer, 255, OLD_BUFFER_LEN); };
         };
 
-        void add_renderer (df::renderer *r);
+        void add_renderer (YADCRenderer* r);
         void remove_renderer();
+        YADCRenderer* get_renderer();
         inline int tile_index (int x, int y) { return x * gps->dimy + y; }
     }
 }
