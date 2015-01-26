@@ -48,6 +48,7 @@ YADCRenderer::YADCRenderer (df::renderer* parent)
 
 YADCRenderer::~YADCRenderer()
 {
+    lock_guard <recursive_mutex> g(*lock);
     enabler->renderer = parent;
     delete[] dirty;
     delete[] old_buffer;
