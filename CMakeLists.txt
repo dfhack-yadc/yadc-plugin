@@ -1,6 +1,5 @@
 PROJECT (yadc)
-# A list of source files
-SET(PROJECT_SRCS
+SET(YADC_SRCS
     yadc.cpp
     client.cpp
     config.cpp
@@ -8,18 +7,13 @@ SET(PROJECT_SRCS
     renderer.cpp
     util.cpp
 )
-# A list of headers
-SET(PROJECT_HDRS
+SET(YADC_HDRS
     client.h
     config.h
     input.h
     renderer.h
     util.h
 )
-SET_SOURCE_FILES_PROPERTIES(${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
-
-# mash them together (headers are marked as headers and nothing will try to compile them)
-LIST(APPEND PROJECT_SRCS ${PROJECT_HDRS})
-
-# this makes sure all the stuff is put in proper places and linked to dfhack
-DFHACK_PLUGIN(yadc ${PROJECT_SRCS} LINK_LIBRARIES clsocket dfhack-md5 jsonxx)
+SET_SOURCE_FILES_PROPERTIES(${YADC_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
+LIST(APPEND YADC_SRCS ${YADC_HDRS})
+DFHACK_PLUGIN(yadc ${YADC_SRCS} LINK_LIBRARIES clsocket dfhack-md5 jsonxx)
