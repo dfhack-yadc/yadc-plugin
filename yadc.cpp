@@ -108,12 +108,10 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
 
 DFhackCExport command_result plugin_shutdown (color_ostream &out)
 {
-    if (client)
-        return client_disconnect();
     if (is_enabled)
     {
-        // Clean up
-        plugin_enable(out, false);
+        if (plugin_enable(out, false) != CR_OK)
+            return CR_FAILURE;
     }
     return CR_OK;
 }
