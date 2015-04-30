@@ -39,8 +39,8 @@ namespace yadc {
             virtual bool get_mouse_coords (int32_t* x, int32_t* y);
             virtual bool uses_opengl();
 
-            int32_t serialize_changed (unsigned char* dest, int maxlength);
-            int32_t serialize_events (unsigned char* dest, int maxlength);
+            int32_t serialize_changed (uint8_t* dest, int maxlength);
+            int32_t serialize_events (uint8_t* dest, int maxlength);
         protected:
             df::renderer* parent;
         private:

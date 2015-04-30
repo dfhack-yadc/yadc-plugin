@@ -116,9 +116,15 @@ DFhackCExport command_result plugin_shutdown (color_ostream &out)
     return CR_OK;
 }
 
-unsigned char test_buffer[256 * 256 * 5];
+uint8_t test_buffer[256 * 256 * 5];
 DFhackCExport command_result plugin_onupdate (color_ostream &out)
 {
+    if (!client->isConnected())
+    {
+        plugin_enable(out, false);
+        out.printerr("yadc: Lost client connection\n");
+        return CR_OK;
+    }
     static int32_t last_gpu_tick = 0;
     int32_t len;
     if (is_enabled && enabler->gputicks.value != last_gpu_tick)

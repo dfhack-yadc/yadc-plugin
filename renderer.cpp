@@ -160,12 +160,12 @@ bool YADCRenderer::uses_opengl()
     return parent->uses_opengl();
 }
 
-int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
+int32_t YADCRenderer::serialize_changed (uint8_t* dest, int maxlength)
 {
     // Serialize all changed tiles
     // Each tile is represented by 5 bytes: x, y, tile, fg, bg
     lock_guard <recursive_mutex> g(*lock);
-    unsigned char* p = dest;
+    uint8_t* p = dest;
     for (int y = 0; y < gps->dimy; y++)
     {
         for (int x = 0; x < gps->dimx; x++)
@@ -177,11 +177,11 @@ int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
                 continue;
             // old_buffer is a constant size, which ensures that tiles are
             // properly updated when the screen dimensions change
-            unsigned char* old_buffer_tile = old_buffer + ((x * 256 + y) * 3);
-            unsigned char* screen_tile = screen + (tile * 4);
-            unsigned char ch = screen_tile[0];
-            unsigned char fg = (screen_tile[1] + (8 * screen_tile[3])) % 16;
-            unsigned char bg = screen_tile[2] % 16;
+            uint8_t* old_buffer_tile = old_buffer + ((x * 256 + y) * 3);
+            uint8_t* screen_tile = screen + (tile * 4);
+            uint8_t ch = screen_tile[0];
+            uint8_t fg = (screen_tile[1] + (8 * screen_tile[3])) % 16;
+            uint8_t bg = screen_tile[2] % 16;
             // Avoid sending tiles that haven't actually changed, even if they
             // were updated (for example, after resizing the screen)
             if (old_buffer_tile[0] == ch && old_buffer_tile[1] == fg &&
@@ -202,7 +202,7 @@ int32_t YADCRenderer::serialize_changed (unsigned char* dest, int maxlength)
     return len;
 }
 
-int32_t YADCRenderer::serialize_events (unsigned char* dest, int maxlength)
+int32_t YADCRenderer::serialize_events (uint8_t* dest, int maxlength)
 {
     jsonxx::Object events;
     if (event_flags & renderer_event::GRID_RESIZE)

@@ -19,15 +19,16 @@ namespace yadc {
         int16_t screen_port;
         CActiveSocket* comm_socket;
         CActiveSocket* screen_socket;
-        void log(std::string msg, bool console);
-        bool send_data (CActiveSocket* sock, const unsigned char* buffer, int32_t length);
+        bool send_data (CActiveSocket* sock, const uint8_t* buffer, int32_t length);
+        void handle_error (CSimpleSocket::CSocketError err);
         void cleanup();
     public:
         Client (int16_t comm_port, int16_t screen_port);
         ~Client();
         command_result connect();
         command_result disconnect();
-        bool send_screen_data (const unsigned char* buffer, int32_t length);
-        bool send_comm_data (const unsigned char* buffer, int32_t length);
+        inline bool isConnected() { return connected; }
+        bool send_screen_data (const uint8_t* buffer, int32_t length);
+        bool send_comm_data (const uint8_t* buffer, int32_t length);
     };
 }
