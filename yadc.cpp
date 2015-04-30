@@ -56,6 +56,20 @@ command_result client_disconnect()
     return CR_OK;
 }
 
+bool load_config (color_ostream &out)
+{
+    config::ConfigParser parser(YADC_CONFIG_PATH);
+    if (!parser.isValid())
+    {
+        out.printerr("yadc: Could not load configuration file\n");
+        return false;
+    }
+    jsonxx::Object config = parser.getData();
+    yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25143);
+    yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25144);
+    return true;
+}
+
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands)
 {
     if (!input::initialize())
@@ -70,15 +84,8 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
         out.printerr("yadc: Could not initialize configuration file\n");
         return CR_FAILURE;
     }
-    config::ConfigParser parser(YADC_CONFIG_PATH);
-    if (!parser.isValid())
-    {
-        out.printerr("yadc: Could not load configuration file\n");
+    if (!load_config(out))
         return CR_FAILURE;
-    }
-    jsonxx::Object config = parser.getData();
-    yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25143);
-    yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25144);
     commands.push_back(PluginCommand(
         "yadc", "yadc",
         cmd_yadc, false,
@@ -86,6 +93,7 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
         "  yadc connect|start: Connect to the server\n"
         "  yadc disconnect|stop: Disconnect from the server\n"
         "  yadc reconnect|restart: Restart the client\n"
+        "  yadc reload|reload-config: Reload the configuration file (" YADC_CONFIG_PATH ")\n"
     ));
     if (getenv("YADC_AUTO_ENABLE"))
     {
@@ -197,6 +205,8 @@ command_result cmd_yadc(color_ostream &out, std::vector <std::string> &parameter
         }
         else if (parameters[0] == "status")
             return cmd_yadc_status(out);
+        else if (parameters[0] == "reload" || parameters[0] == "reload-config")
+            return load_config(out) ? CR_OK : CR_FAILURE;
     }
     else if (parameters.size() == 0)
         return cmd_yadc_status(out);
