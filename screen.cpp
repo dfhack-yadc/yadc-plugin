@@ -38,6 +38,14 @@ uint32_t screen::serialize_changed (uint8_t* dest, int maxlength)
             uint8_t ch = screen_tile[0];
             uint8_t fg = (screen_tile[1] + (8 * screen_tile[3])) % 16;
             uint8_t bg = screen_tile[2] % 16;
+            if (ch == 0 || ch == 32)
+            {
+                // characters 0 and 32 should be identical in tilesets, due to
+                // both being used for blank space in various places
+                // additionally, their foreground color does not matter
+                ch = 0;
+                fg = 0;
+            }
             if (!force_update &&
                 old_buffer_tile[0] == ch &&
                 old_buffer_tile[1] == fg &&
