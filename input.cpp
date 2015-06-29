@@ -117,23 +117,7 @@ bool input::initialize()
     MAP(222, SDL::K_QUOTE);
 
 #undef MAP
-    // SDL_PushEvent hook
-#if defined(_LINUX)
-    input::push_event = SDL_PushEvent;
-#elif defined(_DARWIN)
-    void* sdl_library = dlopen("SDL.framework/SDL", RTLD_LAZY);
-    if (sdl_library)
-    {
-        input::push_event = (int (*)(SDL::Event*))
-            dlsym(sdl_library, "SDL_PushEvent");
-        dlclose(sdl_library);
-    }
-#else
-    input::push_event = (int (*)(SDL::Event*))
-        GetProcAddress(GetModuleHandle("SDLreal.dll"), "SDL_PushEvent");
-#endif
-    util::log("push_event: 0x%x\n", input::push_event);
-    return input::push_event != 0;
+    return true;
 }
 
 SDL::Key input::map_key (int keycode)
@@ -172,8 +156,6 @@ bool KeyboardEvent::read_from_json (const std::string input)
 
 bool KeyboardEvent::trigger()
 {
-    if (!input::push_event)
-        return false;
     if (!(type == SDL::ET_KEYDOWN || type == SDL::ET_KEYUP))
         return false;
     SDL::Event event;
@@ -183,6 +165,6 @@ bool KeyboardEvent::trigger()
     event.key.ksym.mod = (SDL::Mod)modstate;
     event.key.ksym.sym = sym;
     event.key.ksym.unicode = unicode;
-    input::push_event(&event);
+    SDL_PushEvent(&event);
     return true;
 }
