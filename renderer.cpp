@@ -52,6 +52,8 @@ YADCRenderer::~YADCRenderer()
     enabler->renderer = parent;
     delete[] dirty;
     delete[] old_buffer;
+    y_renderer = NULL;
+    util::log("Renderer deleted\n");
 }
 
 void YADCRenderer::copy_from_inner()

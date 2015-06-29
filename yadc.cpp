@@ -108,6 +108,7 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
 
 DFhackCExport command_result plugin_shutdown (color_ostream &out)
 {
+    util::log("Plugin shutting down\n");
     if (is_enabled)
     {
         if (plugin_enable(out, false) != CR_OK)
@@ -131,7 +132,7 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
     {
         last_gpu_tick = enabler->gputicks.value;
         CoreSuspender suspend;
-        renderer::YADCRenderer* r = static_cast<renderer::YADCRenderer*>(enabler->renderer);
+        renderer::YADCRenderer* r = renderer::get_renderer();
         len = r->serialize_changed(test_buffer, 256 * 256 * 5);
         if (len)
         {
@@ -150,24 +151,16 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
 {
     if (enable != is_enabled)
     {
-        command_result res;
-        if (is_enabled)
-            res = client_disconnect();
-        else
-            res = client_connect();
+        command_result res = enable ? client_connect() : client_disconnect();
         if (res != CR_OK)
         {
             out.printerr("Could not %s client.\n", (enable) ? "start" : "stop");
             return res;
         }
         if (enable)
-        {
             renderer::add_renderer(new renderer::YADCRenderer(enabler->renderer));
-        }
         else
-        {
             renderer::remove_renderer();
-        }
         is_enabled = enable;
         util::log("Plugin %s.\n", (is_enabled) ? "enabled" : "disabled");
         return res;
