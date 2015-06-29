@@ -14,7 +14,7 @@ extern "C" {
 using namespace yadc;
 using namespace yadc::input;
 
-bool input::initialize()
+bool input::init()
 {
 #define MAP(a, b) sdl_key_map.insert(std::pair<int, SDL::Key>(a, b))
     // Modifiers

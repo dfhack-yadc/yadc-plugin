@@ -5,12 +5,14 @@
 #include "DataDefs.h"
 #include "modules/Filesystem.h"
 
+#include "df/enabler.h"
+
 #include "jsonxx.h"
 
 #include "input.h"
 #include "client.h"
 #include "config.h"
-#include "renderer.h"
+#include "screen.h"
 #include "util.h"
 
 using namespace DFHack;
@@ -38,7 +40,9 @@ command_result client_connect()
         return CR_FAILURE;
     client = new Client(yadc_config.comm_port, yadc_config.screen_port);
     command_result res = client->connect();
-    if (res != CR_OK)
+    if (res == CR_OK)
+        screen::invalidate();
+    else
     {
         delete client;
         client = NULL;
@@ -72,7 +76,7 @@ bool load_config (color_ostream &out)
 
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands)
 {
-    if (!input::initialize())
+    if (!input::init())
     {
         out.printerr("Failed to initialize input hooks\n");
         return CR_FAILURE;
@@ -132,13 +136,12 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
     {
         last_gpu_tick = enabler->gputicks.value;
         CoreSuspender suspend;
-        renderer::YADCRenderer* r = renderer::get_renderer();
-        len = r->serialize_changed(test_buffer, 256 * 256 * 5);
+        len = screen::serialize_changed(test_buffer, 256 * 256 * 5);
         if (len)
         {
             client->send_screen_data(test_buffer, len);
         }
-        len = r->serialize_events(test_buffer, 256 * 256 * 5);
+        len = screen::serialize_events(test_buffer, 256 * 256 * 5);
         if (len)
         {
             client->send_comm_data(test_buffer, len);
@@ -157,10 +160,6 @@ DFhackCExport command_result plugin_enable (color_ostream &out, bool enable)
             out.printerr("Could not %s client.\n", (enable) ? "start" : "stop");
             return res;
         }
-        if (enable)
-            renderer::add_renderer(new renderer::YADCRenderer(enabler->renderer));
-        else
-            renderer::remove_renderer();
         is_enabled = enable;
         util::log("Plugin %s.\n", (is_enabled) ? "enabled" : "disabled");
         return res;

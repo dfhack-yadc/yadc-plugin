@@ -4,14 +4,14 @@ SET(YADC_SRCS
     client.cpp
     config.cpp
     input.cpp
-    renderer.cpp
+    screen.cpp
     util.cpp
 )
 SET(YADC_HDRS
     client.h
     config.h
     input.h
-    renderer.h
+    screen.h
     util.h
 )
 SET_SOURCE_FILES_PROPERTIES(${YADC_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)

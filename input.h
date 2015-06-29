@@ -15,7 +15,7 @@ namespace yadc {
     namespace input {
         static std::map<int, SDL::Key> sdl_key_map;
 
-        bool initialize();
+        bool init();
         SDL::Key map_key (int keycode);
         struct KeyboardEvent {
             KeyboardEvent():
