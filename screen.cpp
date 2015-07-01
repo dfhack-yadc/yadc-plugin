@@ -14,9 +14,16 @@ using namespace tthread;
 using namespace yadc;
 
 static uint8_t old_buffer[256 * 256 * 3];
-static bool force_update;
+static struct {
+    uint8_t tiles;
+    uint8_t events;
+} update;
+static float colors[16][3];
 
-void screen::invalidate() { force_update = true; }
+void screen::invalidate()
+{
+    memset(&update, 1, sizeof(update));
+}
 
 uint32_t screen::serialize_changed (uint8_t* dest, int maxlength)
 {
@@ -46,7 +53,7 @@ uint32_t screen::serialize_changed (uint8_t* dest, int maxlength)
                 ch = 0;
                 fg = 0;
             }
-            if (!force_update &&
+            if (!update.tiles &&
                 old_buffer_tile[0] == ch &&
                 old_buffer_tile[1] == fg &&
                 old_buffer_tile[2] == bg &&
@@ -67,16 +74,33 @@ uint32_t screen::serialize_changed (uint8_t* dest, int maxlength)
     }
     dimx = gps->dimx;
     dimy = gps->dimy;
-    force_update = false;
+    update.tiles = false;
     uint32_t len = (uint32_t)(p - dest);
     return len;
+}
+
+bool update_colors()
+{
+    bool changed = false;
+    for (int i = 0; i < 16; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (colors[i][j] != enabler->ccolor[i][j])
+            {
+                colors[i][j] = enabler->ccolor[i][j];
+                changed = true;
+            }
+        }
+    }
+    return changed;
 }
 
 uint32_t screen::serialize_events (uint8_t* dest, int maxlength)
 {
     static int dimx = -1, dimy = -1;
     jsonxx::Object events;
-    if (dimx != gps->dimx || dimy != gps->dimy)
+    if (update.events || dimx != gps->dimx || dimy != gps->dimy)
     {
         jsonxx::Object dims;
         dims << "x" << gps->dimx;
@@ -85,9 +109,23 @@ uint32_t screen::serialize_events (uint8_t* dest, int maxlength)
         dimx = gps->dimx;
         dimy = gps->dimy;
     }
+    bool colors_changed = update_colors();
+    if (update.events || colors_changed)
+    {
+        jsonxx::Array all_colors;
+        for (int i = 0; i < 16; i++)
+        {
+            jsonxx::Array cur_color;
+            for (int j = 0; j < 3; j++)
+                cur_color << (int)(255.0 * colors[i][j]);
+            all_colors.append(cur_color);
+        }
+        events << "colors" << all_colors;
+    }
     if (events.empty())
         return 0;
     std::string json = events.json();
     strncpy((char*)dest, json.c_str(), maxlength);
+    update.events = false;
     return json.size();
 }
