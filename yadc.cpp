@@ -41,7 +41,7 @@ command_result client_connect()
     client = new Client(yadc_config.comm_port, yadc_config.screen_port);
     command_result res = client->connect();
     if (res == CR_OK)
-        screen::invalidate();
+        yadc::screen::invalidate();
     else
     {
         delete client;
@@ -121,7 +121,7 @@ DFhackCExport command_result plugin_shutdown (color_ostream &out)
     return CR_OK;
 }
 
-uint8_t test_buffer[256 * 256 * 5];
+static uint8_t buffer[256 * 256 * 5];
 DFhackCExport command_result plugin_onupdate (color_ostream &out)
 {
     if (!client->isConnected())
@@ -136,15 +136,19 @@ DFhackCExport command_result plugin_onupdate (color_ostream &out)
     {
         last_gpu_tick = enabler->gputicks.value;
         CoreSuspender suspend;
-        len = screen::serialize_changed(test_buffer, 256 * 256 * 5);
-        if (len)
+        len = screen::serialize_changed(buffer, sizeof(buffer));
+        // Send zero-lengh packets (actually 4 null bytes) about twice a second
+        // to allow for connection issues to be detected quickly, even without
+        // screen updates or events occurring
+        bool ping = (last_gpu_tick % ((int)enabler->gfps / 2) == 0);
+        if (len || ping)
         {
-            client->send_screen_data(test_buffer, len);
+            client->send_screen_data(buffer, len);
         }
-        len = screen::serialize_events(test_buffer, 256 * 256 * 5);
-        if (len)
+        len = screen::serialize_events(buffer, sizeof(buffer));
+        if (len || ping)
         {
-            client->send_comm_data(test_buffer, len);
+            client->send_comm_data(buffer, len);
         }
     }
     return CR_OK;
