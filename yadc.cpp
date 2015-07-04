@@ -3,6 +3,7 @@
 #include "Export.h"
 #include "PluginManager.h"
 #include "DataDefs.h"
+#include "DFHackVersion.h"
 #include "modules/Filesystem.h"
 
 #include "df/enabler.h"
@@ -27,6 +28,7 @@ using df::global::gps;
 
 static Client* client;
 static config::YADCConfig yadc_config;
+config::YADCConfig &config::get_config() { return yadc_config; }
 
 DFhackCExport command_result plugin_init (color_ostream &out, std::vector <PluginCommand> &commands);
 DFhackCExport command_result plugin_shutdown (color_ostream &out);
@@ -71,6 +73,8 @@ bool load_config (color_ostream &out)
     jsonxx::Object config = parser.getData();
     yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25145);
     yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25146);
+    std::string default_name = std::string("Unnamed DF ") + Version::df_version() + " game";
+    yadc_config.name = config.get<jsonxx::String>("name", default_name);
     return true;
 }
 

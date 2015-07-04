@@ -29,6 +29,8 @@ namespace yadc {
         struct YADCConfig {
             int comm_port;
             int screen_port;
+            std::string name;
         };
+        YADCConfig &get_config();
     }
 }

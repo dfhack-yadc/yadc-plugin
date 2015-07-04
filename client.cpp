@@ -3,8 +3,12 @@
 #include "Export.h"
 #include "PluginManager.h"
 #include "DataDefs.h"
+#include "DFHackVersion.h"
+
+#include "jsonxx.h"
 
 #include "client.h"
+#include "config.h"
 #include "util.h"
 
 using namespace yadc;
@@ -109,6 +113,22 @@ command_result Client::connect()
     }
 
     connected = true;
+
+    jsonxx::Object o;
+    jsonxx::Object info;
+    info << "df_version" << std::string(Version::df_version());
+    info << "dfhack_version" << std::string(Version::dfhack_version());
+    info << "name" << config::get_config().name;
+    o << "info" << info;
+    std::string info_json = o.json();
+    util::log("%s\n", info_json.c_str());
+    if (!send_comm_data((uint8_t*)info_json.c_str(), info_json.size()))
+    {
+        util::log("Could not send game information\n");
+        disconnect();
+        return CR_FAILURE;
+    }
+
     return CR_OK;
 }
 
