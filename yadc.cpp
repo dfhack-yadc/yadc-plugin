@@ -71,8 +71,8 @@ bool load_config (color_ostream &out)
         return false;
     }
     jsonxx::Object config = parser.getData();
-    yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25145);
-    yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25146);
+    yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25143);
+    yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25144);
     std::string default_name = std::string("Unnamed DF ") + Version::df_version() + " game";
     yadc_config.name = config.get<jsonxx::String>("name", default_name);
     return true;
