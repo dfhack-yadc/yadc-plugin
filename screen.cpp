@@ -105,7 +105,7 @@ uint32_t screen::serialize_events (uint8_t* dest, int maxlength)
         jsonxx::Object dims;
         dims << "x" << gps->dimx;
         dims << "y" << gps->dimy;
-        events << "grid" << dims;
+        events << "dims" << dims;
         dimx = gps->dimx;
         dimy = gps->dimy;
     }
