@@ -23,8 +23,8 @@ using namespace yadc;
 DFHACK_PLUGIN("yadc");
 DFHACK_PLUGIN_IS_ENABLED(is_enabled);
 
-using df::global::enabler;
-using df::global::gps;
+REQUIRE_GLOBAL(enabler);
+REQUIRE_GLOBAL(gps);
 
 static Client* client;
 static config::YADCConfig yadc_config;
