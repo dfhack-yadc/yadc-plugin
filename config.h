@@ -8,7 +8,7 @@
 
 #include "modules/Filesystem.h"
 
-#include "jsonxx.h"
+#include "jsoncpp.h"
 
 #define YADC_CONFIG_PATH "yadc/config.json"
 
@@ -16,13 +16,9 @@ namespace yadc {
     namespace config {
         bool init_config();
 
-        class ConfigParser {
-        public:
+        struct ConfigParser {
             ConfigParser (std::string path);
-            jsonxx::Object getData() { return data; };
-            bool isValid() { return valid; };
-        private:
-            jsonxx::Object data;
+            Json::Value data;
             bool valid;
         };
 

@@ -10,6 +10,9 @@
 #include "DataDefs.h"
 #include "md5wrapper.h"
 
+#include "jsoncpp.h"
+#include "jsoncpp-ex.h"
+
 using namespace DFHack;
 
 namespace yadc {

@@ -35,6 +35,7 @@ ConfigParser::ConfigParser (std::string path)
         in.seekg(0, std::ios_base::beg);
         in.read(&contents[0], contents.size());
         in.close();
-        valid = data.parse(contents);
+        Json::Reader r;
+        valid = r.parse(contents, data);
     }
 }

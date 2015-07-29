@@ -6,7 +6,7 @@
 #include "PluginManager.h"
 #include "DataDefs.h"
 
-#include "jsonxx.h"
+#include "jsoncpp.h"
 
 #include "SDL_events.h"
 #include "SDL_keysym.h"
@@ -31,8 +31,8 @@ namespace yadc {
                 unicode(unicode),
                 modstate(modstate)
             { }
-            bool read_from_json (const jsonxx::Object object);
-            bool read_from_json (const std::string input);
+            bool read_from_json (const Json::Value &object);
+            bool read_from_json (const std::string &input);
             bool trigger();
             SDL::EventType type;
             SDL::Key sym;

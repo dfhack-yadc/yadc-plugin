@@ -8,8 +8,6 @@
 
 #include "df/enabler.h"
 
-#include "jsonxx.h"
-
 #include "input.h"
 #include "client.h"
 #include "config.h"
@@ -65,16 +63,15 @@ command_result client_disconnect()
 bool load_config (color_ostream &out)
 {
     config::ConfigParser parser(YADC_CONFIG_PATH);
-    if (!parser.isValid())
+    if (!parser.valid)
     {
         out.printerr("yadc: Could not load configuration file\n");
         return false;
     }
-    jsonxx::Object config = parser.getData();
-    yadc_config.comm_port = config.get<jsonxx::Number>("comm_port", 25143);
-    yadc_config.screen_port = config.get<jsonxx::Number>("screen_port", 25144);
+    yadc_config.comm_port = JsonEx::get<int>(parser.data, "comm_port", 25143);
+    yadc_config.screen_port = JsonEx::get<int>(parser.data, "screen_port", 25144);
     std::string default_name = std::string("Unnamed DF ") + Version::df_version() + " game";
-    yadc_config.name = config.get<jsonxx::String>("name", default_name);
+    yadc_config.name = JsonEx::get<std::string>(parser.data, "name", default_name);
     return true;
 }
 

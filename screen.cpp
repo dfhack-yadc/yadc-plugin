@@ -1,6 +1,5 @@
 #include "screen.h"
 #include "util.h"
-#include "jsonxx.h"
 
 #include "df/enabler.h"
 #include "df/graphic.h"
@@ -99,32 +98,30 @@ bool update_colors()
 uint32_t screen::serialize_events (uint8_t* dest, int maxlength)
 {
     static int dimx = -1, dimy = -1;
-    jsonxx::Object events;
+    Json::Value events;
     if (update.events || dimx != gps->dimx || dimy != gps->dimy)
     {
-        jsonxx::Object dims;
-        dims << "x" << gps->dimx;
-        dims << "y" << gps->dimy;
-        events << "dims" << dims;
+        events["dims"]["x"] = gps->dimx;
+        events["dims"]["y"] = gps->dimy;
         dimx = gps->dimx;
         dimy = gps->dimy;
     }
     bool colors_changed = update_colors();
     if (update.events || colors_changed)
     {
-        jsonxx::Array all_colors;
+        Json::Value all_colors;
         for (int i = 0; i < 16; i++)
         {
-            jsonxx::Array cur_color;
+            Json::Value cur_color;
             for (int j = 0; j < 3; j++)
-                cur_color << (int)(255.0 * colors[i][j]);
+                cur_color.append((int)(255.0 * colors[i][j]));
             all_colors.append(cur_color);
         }
-        events << "colors" << all_colors;
+        events["colors"] = all_colors;
     }
     if (events.empty())
         return 0;
-    std::string json = events.json();
+    std::string json = JsonEx::toSimpleString(events);
     strncpy((char*)dest, json.c_str(), maxlength);
     update.events = false;
     return json.size();
