@@ -11,52 +11,6 @@
 
 using namespace yadc;
 
-// From dfstream
-static const char * translate_socket_error(CSimpleSocket::CSocketError err) {
-    switch (err) {
-        case CSimpleSocket::SocketError:
-            return "Generic socket error translates to error below.";
-        case CSimpleSocket::SocketSuccess:
-            return "No socket error.";
-        case CSimpleSocket::SocketInvalidSocket:
-            return "Invalid socket handle.";
-        case CSimpleSocket::SocketInvalidAddress:
-            return "Invalid destination address specified.";
-        case CSimpleSocket::SocketInvalidPort:
-            return "Invalid destination port specified.";
-        case CSimpleSocket::SocketConnectionRefused:
-            return "No server is listening at remote address.";
-        case CSimpleSocket::SocketTimedout:
-            return "Timed out while attempting operation.";
-        case CSimpleSocket::SocketEwouldblock:
-            return "Operation would block if socket were blocking.";
-        case CSimpleSocket::SocketNotconnected:
-            return "Currently not connected.";
-        case CSimpleSocket::SocketEinprogress:
-            return "Socket is non-blocking and the connection cannot be completed immediately";
-        case CSimpleSocket::SocketInterrupted:
-            return "Call was interrupted by a signal that was caught before a valid connection arrived.";
-        case CSimpleSocket::SocketConnectionAborted:
-            return "The connection has been aborted.";
-        case CSimpleSocket::SocketProtocolError:
-            return "Invalid protocol for operation.";
-        case CSimpleSocket::SocketFirewallError:
-            return "Firewall rules forbid connection.";
-        case CSimpleSocket::SocketInvalidSocketBuffer:
-            return "The receive buffer point outside the process's address space.";
-        case CSimpleSocket::SocketConnectionReset:
-            return "Connection was forcibly closed by the remote host.";
-        case CSimpleSocket::SocketAddressInUse:
-            return "Address already in use.";
-        case CSimpleSocket::SocketInvalidPointer:
-            return "Pointer type supplied as argument is invalid.";
-        case CSimpleSocket::SocketEunknown:
-            return "Unknown error";
-        default:
-            return "No such CSimpleSocket error";
-    }
-}
-
 Client::Client(int16_t comm_port, int16_t screen_port)
     :connected(false),
      comm_port(comm_port),
@@ -175,11 +129,11 @@ void Client::handle_error (CSimpleSocket::CSocketError err)
         case CSimpleSocket::SocketProtocolError:
         case CSimpleSocket::SocketConnectionReset:
         case CSimpleSocket::SocketInvalidSocket:
-            util::log("Fatal socket error: %i: %s\n", err, translate_socket_error(err));
+            util::log("Fatal socket error: %i: %s\n", err, CSimpleSocket::DescribeError(err));
             disconnect();
             break;
         default:
-            util::log("Socket error: %i: %s\n", err, translate_socket_error(err));
+            util::log("Socket error: %i: %s\n", err, CSimpleSocket::DescribeError(err));
             break;
     }
 }
