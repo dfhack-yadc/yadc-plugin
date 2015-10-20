@@ -14,8 +14,8 @@ using namespace yadc;
 
 static uint8_t old_buffer[256 * 256 * 3];
 static struct {
-    uint8_t tiles;
-    uint8_t events;
+    bool tiles;
+    bool events;
 } update;
 static float colors[16][3];
 
@@ -30,12 +30,16 @@ uint32_t screen::serialize_changed (uint8_t* dest, int maxlength)
     // Each tile is represented by 5 bytes: x, y, ch, fg, bg
     static int dimx = -1, dimy = -1;
     uint8_t* p = dest;
+    bool incomplete = false;
     for (int y = 0; y < gps->dimy; y++)
     {
         for (int x = 0; x < gps->dimx; x++)
         {
-            if ((int)(p + 5) - (int)dest > maxlength)
+            if (p + 5 - dest > maxlength)
+            {
+                incomplete = true;
                 break;
+            }
             const int raw_tile = x * gps->dimy + y;
             // old_buffer is a constant size, which ensures that tiles are
             // properly updated when the screen dimensions change
@@ -73,7 +77,8 @@ uint32_t screen::serialize_changed (uint8_t* dest, int maxlength)
     }
     dimx = gps->dimx;
     dimy = gps->dimy;
-    update.tiles = false;
+    if (!incomplete)
+        update.tiles = false;
     uint32_t len = (uint32_t)(p - dest);
     return len;
 }
