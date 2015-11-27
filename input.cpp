@@ -131,15 +131,15 @@ SDL::Key input::map_key (int keycode)
 bool KeyboardEvent::read_from_json (const Json::Value &object)
 {
     // Allow {"keydown": true} or {"keydown": 1}
-    bool is_keydown = JsonEx::get<bool>(object, "keydown", false) ||
-        JsonEx::get<int>(object, "keydown", 0);
+    bool is_keydown = Json::get<bool>(object, "keydown", false) ||
+        Json::get<int>(object, "keydown", 0);
     type = (is_keydown) ? SDL::ET_KEYDOWN : SDL::ET_KEYUP;
-    sym = map_key(JsonEx::get<int>(object, "sym", (int)SDL::K_UNKNOWN));
-    unicode = (uint16_t) JsonEx::get<int>(object, "unicode", 0);
+    sym = map_key(Json::get<int>(object, "sym", (int)SDL::K_UNKNOWN));
+    unicode = (uint16_t) Json::get<int>(object, "unicode", 0);
     modstate = (SDL::Mod)(
-        (JsonEx::get<bool>(object, "shift", false) ? SDL::KMOD_SHIFT : 0) |
-        (JsonEx::get<bool>(object, "alt", false)   ? SDL::KMOD_ALT   : 0) |
-        (JsonEx::get<bool>(object, "ctrl", false)  ? SDL::KMOD_CTRL  : 0)
+        (Json::get<bool>(object, "shift", false) ? SDL::KMOD_SHIFT : 0) |
+        (Json::get<bool>(object, "alt", false)   ? SDL::KMOD_ALT   : 0) |
+        (Json::get<bool>(object, "ctrl", false)  ? SDL::KMOD_CTRL  : 0)
     );
     return sym != SDL::K_UNKNOWN || unicode != 0;
 }

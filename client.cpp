@@ -70,7 +70,7 @@ command_result Client::connect()
     info["info"]["df_version"] = std::string(Version::df_version());
     info["info"]["dfhack_version"] = std::string(Version::dfhack_version());
     info["info"]["name"] = config::get_config().name;
-    std::string info_json = JsonEx::toSimpleString(info);
+    std::string info_json = Json::toSimpleString(info);
     util::log("%s\n", info_json.c_str());
     if (!send_comm_data((uint8_t*)info_json.c_str(), info_json.size()))
     {

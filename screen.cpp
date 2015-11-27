@@ -126,7 +126,7 @@ uint32_t screen::serialize_events (uint8_t* dest, int maxlength)
     }
     if (events.empty())
         return 0;
-    std::string json = JsonEx::toSimpleString(events);
+    std::string json = Json::toSimpleString(events);
     strncpy((char*)dest, json.c_str(), maxlength);
     update.events = false;
     return json.size();

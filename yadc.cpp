@@ -68,10 +68,10 @@ bool load_config (color_ostream &out)
         out.printerr("yadc: Could not load configuration file\n");
         return false;
     }
-    yadc_config.comm_port = JsonEx::get<int>(parser.data, "comm_port", 25143);
-    yadc_config.screen_port = JsonEx::get<int>(parser.data, "screen_port", 25144);
+    yadc_config.comm_port = Json::get<int>(parser.data, "comm_port", 25143);
+    yadc_config.screen_port = Json::get<int>(parser.data, "screen_port", 25144);
     std::string default_name = std::string("Unnamed DF ") + Version::df_version() + " game";
-    yadc_config.name = JsonEx::get<std::string>(parser.data, "name", default_name);
+    yadc_config.name = Json::get<std::string>(parser.data, "name", default_name);
     return true;
 }
 
