@@ -32,7 +32,7 @@ command_result Client::connect()
     comm_socket = new CActiveSocket;
     comm_socket->Initialize();
     comm_socket->SetNonblocking();
-    if (!comm_socket->Open((uint8_t*)"127.0.0.1", comm_port))
+    if (!comm_socket->Open("127.0.0.1", comm_port))
     {
         util::log("Failed to connect to 127.0.0.1:%i \n", comm_port);
         cleanup();
@@ -42,7 +42,7 @@ command_result Client::connect()
     screen_socket = new CActiveSocket;
     screen_socket->Initialize();
     screen_socket->SetNonblocking();
-    if (!screen_socket->Open((uint8_t*)"127.0.0.1", screen_port))
+    if (!screen_socket->Open("127.0.0.1", screen_port))
     {
         util::log("Failed to connect to 127.0.0.1:%i\n", screen_port);
         cleanup();
